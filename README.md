@@ -29,6 +29,8 @@ The input file defines parameters of a fractal topology.
 The parameter `-a` allows automatic position of intern control points of Bézier curves depending on the one from the curve's extremities.  
 The parameter `-c` makes the Bézier curves cubic, otherwise they are quadratic.
 
+You can use the `example/simple.txt` file with the `-a` option. The file contains the coordinates for all cell's corners, not for intern control points.
+
 ## The input file
 
 It must contain the definition of:
