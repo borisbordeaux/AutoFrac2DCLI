@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
     for (std::size_t i = 0; i < faces.size(); i++) {
         coords.emplace_back();
         for (std::size_t j = 0; j < faces[i].constData().size(); j++) {
-            coords[i].emplace_back(readCoords[currentReadCoord] * 10.f);
+            coords[i].emplace_back(readCoords[currentReadCoord]);
             currentReadCoord++;
             if (faces[i][j].edgeType() == frac::EdgeType::BEZIER) {
                 if (autoCoord) {
@@ -106,10 +106,10 @@ int main(int argc, char* argv[]) {
                     coords[i].emplace_back(); // emplace default coord for intern control point, will be better placed after
                 } else {
                     if (cubicBezier) {
-                        coords[i].emplace_back(readCoords[currentReadCoord] * 10.f);
+                        coords[i].emplace_back(readCoords[currentReadCoord]);
                         currentReadCoord++;
                     }
-                    coords[i].emplace_back(readCoords[currentReadCoord] * 10.f);
+                    coords[i].emplace_back(readCoords[currentReadCoord]);
                     currentReadCoord++;
                 }
             }
