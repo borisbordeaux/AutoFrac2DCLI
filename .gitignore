@@ -1,0 +1,6 @@
+cmake-build-debug
+cmake-build-profile
+cmake-build-release
+build
+.idea
+vendor/gudhi.3.9.0/build/
