@@ -56,7 +56,7 @@ std::string frac::Face::name() const {
     return m_name;
 }
 
-int frac::Face::offset() const {
+std::size_t frac::Face::offset() const {
     return m_offset;
 }
 
@@ -118,9 +118,9 @@ void frac::Face::addAdjacencyConstraint(frac::Face const& face, frac::Face const
         s_adjacencyConstraints[face.name()] = "";
     }
     int s1 = static_cast<int>(indexSubFace1);
-    int b1 = frac::utils::mod(static_cast<int>(indexBordFace1) - faceSub1.offset(), static_cast<int>(faceSub1.len()));
+    int b1 = frac::utils::mod(static_cast<int>(indexBordFace1) - static_cast<int>(faceSub1.offset()), static_cast<int>(faceSub1.len()));
     int s2 = static_cast<int>(indexSubFace2);
-    int b2 = frac::utils::mod(static_cast<int>(indexBordFace2) - faceSub2.offset(), static_cast<int>(faceSub2.len()));
+    int b2 = frac::utils::mod(static_cast<int>(indexBordFace2) - static_cast<int>(faceSub2.offset()), static_cast<int>(faceSub2.len()));
     s_adjacencyConstraints[face.name()] += "    " + face.name() + "(Sub('" + std::to_string(s1) + "') + Bord('" + std::to_string(b1) + "') + Permut('0'), Sub('" + std::to_string(s2) + "') + Bord('" + std::to_string(b2) + "'))\n";
 }
 
@@ -128,21 +128,18 @@ void frac::Face::addIncidenceConstraint(frac::Face const& face, frac::Face const
     if (s_incidenceConstraints.find(face.name()) == std::end(Face::s_incidenceConstraints)) {
         s_incidenceConstraints[face.name()] = "";
     }
-    int b1 = frac::utils::mod(static_cast<int>(indexParentEdge) - face.offset(), static_cast<int>(face.len()));
+    int b1 = frac::utils::mod(static_cast<int>(indexParentEdge) - static_cast<int>(face.offset()), static_cast<int>(face.len()));
     int s1 = static_cast<int>(indexSubEdge);
     int s2 = static_cast<int>(indexSubFace);
-    int b2 = frac::utils::mod(static_cast<int>(indexSubFaceEdge) - faceSub.offset(), static_cast<int>(faceSub.len()));
+    int b2 = frac::utils::mod(static_cast<int>(indexSubFaceEdge) - static_cast<int>(faceSub.offset()), static_cast<int>(faceSub.len()));
     s_incidenceConstraints[face.name()] += "    " + face.name() + "(Bord('" + std::to_string(b1) + "') + Sub('" + std::to_string(s1) + "'), Sub('" + std::to_string(s2) + "') + Bord('" + std::to_string(b2) + "'))\n";
 }
 
-int frac::Face::computeOffset(frac::Face const& face, frac::Face const& other) {
-    if (face.m_delay != other.m_delay || face.len() != other.len() || face.m_adjEdge != other.m_adjEdge || face.m_gapEdge != other.m_gapEdge || face.m_reqEdge != other.m_reqEdge) {
-        return -1;
-    }
+std::size_t frac::Face::computeOffset(frac::Face const& face, frac::Face const& other) {
     std::vector<Edge> shifted { other.m_data };
     for (std::size_t i = 0; i < other.len(); ++i) {
         if (face.m_data == shifted) {
-            return static_cast<int>(i);
+            return i;
         }
         std::vector<frac::Edge> new_shifted { frac::utils::shiftVector(shifted) };
         shifted.clear();
@@ -150,7 +147,7 @@ int frac::Face::computeOffset(frac::Face const& face, frac::Face const& other) {
             shifted.emplace_back(e);
         }
     }
-    return -1;
+    return 0; //
 }
 
 frac::Set<frac::Face> frac::Face::allSubdivisions() const {

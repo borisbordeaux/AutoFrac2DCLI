@@ -86,6 +86,10 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    for (frac::Face const& f: faces) {
+        std::cout << f.name() << std::endl;
+    }
+
     frac::Structure structure(faces, cubicBezier);
     for (frac::Adjacency const& adj: constraints) {
         structure.addAdjacency(adj);
@@ -140,6 +144,20 @@ int main(int argc, char* argv[]) {
                     } else {
                         coords[i][j] = (coords[i][j - 1] + coords[i][(j + 1) % nbCtrlPts]) / 2.0f;
                     }
+                }
+            }
+        }
+    }
+
+    //shift coordinates of control points for faces with an offset
+    for (std::size_t i = 0; i < faces.size(); i++) {
+        std::size_t offset = faces[i].offset();
+        for (std::size_t j = 0; j < offset; j++) {
+            coords[i] = frac::utils::shiftVector(coords[i]);
+            if (faces[i][j].edgeType() == frac::EdgeType::BEZIER) {
+                coords[i] = frac::utils::shiftVector(coords[i]);
+                if (structure.isBezierCubic()) {
+                    coords[i] = frac::utils::shiftVector(coords[i]);
                 }
             }
         }

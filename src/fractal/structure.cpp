@@ -6,7 +6,11 @@ frac::Structure::Structure(std::vector<Face> const& faces, bool bezierCubic) : m
 
 void frac::Structure::addAdjacency(Adjacency const& adj) {
     if (m_faces[adj.Face1][adj.Edge1] == m_faces[adj.Face2][adj.Edge2]) {
-        m_strAdjacency += "    init(Sub('" + std::to_string(adj.Face1) + "') + Bord('" + std::to_string(adj.Edge1) + "') + Permut('0'), Sub('" + std::to_string(adj.Face2) + "') + Bord('" + std::to_string(adj.Edge2) + "'))\n";
+        std::size_t offset1 = m_faces[adj.Face1].offset();
+        std::size_t offset2 = m_faces[adj.Face2].offset();
+        std::size_t edge1 = static_cast<std::size_t>(frac::utils::mod(static_cast<int>(adj.Edge1) - static_cast<int>(offset1), static_cast<int>(m_faces[adj.Face1].len())));
+        std::size_t edge2 = static_cast<std::size_t>(frac::utils::mod(static_cast<int>(adj.Edge2) - static_cast<int>(offset2), static_cast<int>(m_faces[adj.Face2].len())));
+        m_strAdjacency += "    init(Sub('" + std::to_string(adj.Face1) + "') + Bord('" + std::to_string(edge1) + "') + Permut('0'), Sub('" + std::to_string(adj.Face2) + "') + Bord('" + std::to_string(edge2) + "'))\n";
         m_adjacencies.push_back(adj);
     }
 }

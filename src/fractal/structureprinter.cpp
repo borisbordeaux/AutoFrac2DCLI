@@ -443,6 +443,8 @@ void frac::StructurePrinter::print_plan_coords_control_points() {
 }
 
 void frac::StructurePrinter::print_footer() {
+    m_filePrinter.append_nl("    auto = Auto(init)");
+    m_filePrinter.append_nl("    auto.autoSubs(300)");
     m_filePrinter.append_nl("    return init");
     m_filePrinter.append_nl("");
     m_filePrinter.append_nl("");

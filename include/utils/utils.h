@@ -4,12 +4,15 @@
 #include <algorithm>
 #include <sstream>
 #include <vector>
+#include <iomanip>
 #include "point2d.h"
 
 namespace frac::utils {
 
 inline std::string to_string(float value) {
-    std::string res = std::to_string(value);
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(4) << value;
+    std::string res = stream.str();
     std::replace(res.begin(), res.end(), ',', '.');
     return res;
 }

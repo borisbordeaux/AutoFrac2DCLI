@@ -20,6 +20,7 @@ enum class AlgorithmSubdivision {
 class Face {
 public:
     Face() : Face(std::vector<frac::Edge> {}) {}
+
     explicit Face(std::vector<frac::Edge> edges, unsigned int delay = 0, const frac::Edge& adjEdge = { frac::EdgeType::CANTOR, 2 }, const frac::Edge& gapEdge = { frac::EdgeType::BEZIER, 2 }, const frac::Edge& reqEdge = { frac::EdgeType::BEZIER, 2 }, AlgorithmSubdivision algo = AlgorithmSubdivision::LinksSurroundDelayAndBezier);
     static Face fromStr(std::string const& name);
 
@@ -29,7 +30,7 @@ public:
     [[nodiscard]] int lastInterior() const;
     [[nodiscard]] std::size_t len() const;
     [[nodiscard]] std::string name() const;
-    [[nodiscard]] int offset() const;
+    [[nodiscard]] std::size_t offset() const;
     [[nodiscard]] frac::Edge adjEdge() const;
     [[nodiscard]] frac::Edge gapEdge() const;
     [[nodiscard]] frac::Edge reqEdge() const;
@@ -72,14 +73,14 @@ private:
     frac::Edge m_gapEdge;
     frac::Edge m_reqEdge;
     std::string m_name;
-    int m_offset;
+    std::size_t m_offset;
     int m_firstInterior;
     AlgorithmSubdivision m_algo;
 
     static frac::Set<frac::Face> s_existingFaces;
 
 
-    static int computeOffset(frac::Face const& face, frac::Face const& other);
+    static std::size_t computeOffset(frac::Face const& face, frac::Face const& other);
 };
 
 } // frac
