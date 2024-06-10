@@ -63,7 +63,7 @@ All lines after the `c` until the `p` are the definition of the constraints on t
 All lines after the `p` are the definition of the position of the control points.  
 A line starting by `#` is ignored, hence can be used as a comment.
 
-A face definition if separated in 4 parts by ` / `. The parts are the following:
+A face definition is separated in 4 parts by ` / `. The parts are the following:
 
 - a list of edges with a form of `X_n_d`, `X` being either `B` or `C` for Bézier or Cantor, `n` being the number of subdivision, and `d` being the delay of the edge subdivision.
 - 3 edges that are the adjacency edge, the lacuna edge, and the mid-Cantor edge. They are used by the subdivision algorithm.
@@ -77,4 +77,5 @@ A constraint definition has the form `F1.E1 / F2.E2`, where:
 - `F2` is the index of the second face.
 - `E2` is the index of the edge of the second face. 
 
-A position has the form  `x y`, they can be float numbers.
+A position has the form `x y`, where `x` and `y` can be float numbers.  
+They are in a specific order. Face by face, it starts by the position of the vertices of the edge 0. Then follows the positions for the vertices in counter clockwise order.
