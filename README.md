@@ -19,7 +19,7 @@ make -j {NB_CORES}
 ## How to use
 
 ```bash
-AutoFracCli [-a] [-c] filename
+AutoFracCli [-a] [-c] [-i N] filename
   filename   path to the input file
   -a         automatic position of intern control points
   -c         use cubic bezier curves, default is quadratic
