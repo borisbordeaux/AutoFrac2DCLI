@@ -12,39 +12,61 @@ enum Mode {
     COORD
 };
 
-int main(int argc, char* argv[]) {
-    bool ok = true;
-    std::string filename;
-    bool autoCoord = false;
-    bool cubicBezier = false;
-
-    if (argc == 2) {
-        std::cout << "Using quadratic bezier curves, intern control points not auto, reading file " << argv[1] << "..." << std::endl;
-        filename = argv[1];
-    } else if (argc == 3) {
-        if (argv[1] == std::string("-a")) {
-            std::cout << "Using quadratic bezier curves, intern control points auto, reading file " << argv[2] << "..." << std::endl;
-            filename = argv[2];
-            autoCoord = true;
-        } else if (argv[1] == std::string("-c")) {
-            std::cout << "Using cubic bezier curves, intern control points not auto, reading file " << argv[2] << "..." << std::endl;
-            filename = argv[2];
-            cubicBezier = true;
+bool optionExists(int argc, char* argv[], std::string const& option) {
+    bool res = false;
+    for (int i = 1; i < argc; i++) {
+        if (argv[i] == option) {
+            res = true;
         }
-    } else if (argc == 4 && argv[1] == std::string("-a") && argv[2] == std::string("-c")) {
-        std::cout << "Using cubic bezier curves, intern control points auto, reading file " << argv[3] << "..." << std::endl;
-        filename = argv[3];
-        autoCoord = true;
-        cubicBezier = true;
-    } else {
-        std::cout << "usage: AutoFracCli [-a] [-c] filename" << std::endl;
-        std::cout << "\tfilename\t\t path to the input file" << std::endl;
-        std::cout << "\t-a      \t\t automatic position of intern control points" << std::endl;
-        std::cout << "\t-c      \t\t use cubic bezier curves, default is quadratic" << std::endl;
-        ok = false;
+    }
+    return res;
+}
+
+std::string getCmdOption(int argc, char* argv[], std::string const& option) {
+    std::string res = "0";
+    for (int i = 1; i < argc - 1; i++) {
+        if (argv[i] == option) {
+            res = argv[i + 1];
+        }
+    }
+    return res;
+}
+
+void printHelp() {
+    std::cout << "usage: AutoFracCli [-a] [-c] [-i N] filename" << std::endl;
+    std::cout << "\tfilename\t\t path to the input file" << std::endl;
+    std::cout << "\t-a      \t\t automatic position of intern control points" << std::endl;
+    std::cout << "\t-c      \t\t use cubic bezier curves, default is quadratic" << std::endl;
+    std::cout << "\t-i N    \t\t nb iterations of subdivision points, default is 0" << std::endl;
+}
+
+int main(int argc, char* argv[]) {
+    std::string filename = argv[argc - 1];
+    bool autoCoord = optionExists(argc, argv, "-a");
+    bool cubicBezier = optionExists(argc, argv, "-c");
+    bool iterAutoSubs = optionExists(argc, argv, "-i");
+    unsigned int nbIterAutoSubs = iterAutoSubs ? std::stoul(getCmdOption(argc, argv, "-i")) : 0;
+
+    int expectedParams = 1 + (autoCoord ? 1 : 0) + (cubicBezier ? 1 : 0) + (iterAutoSubs ? 2 : 0) + 1;
+
+    if(expectedParams != argc){
+        printHelp();
+        return 1;
     }
 
-    if (!ok) { return 1; }
+    if (cubicBezier) {
+        std::cout << "Cubic bezier curves - ";
+    } else {
+        std::cout << "Quadratic bezier curves - ";
+    }
+
+    if (autoCoord) {
+        std::cout << "Intern control points auto - ";
+    } else {
+        std::cout << "Intern control points not auto - ";
+    }
+
+    std::cout << nbIterAutoSubs << " iterations of subdivision points - reading file " << filename << std::endl;
 
     std::vector<frac::Face> faces;
     std::vector<frac::Adjacency> constraints;
@@ -163,7 +185,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    frac::StructurePrinter printer(structure, true, "output.py", coords);
+    frac::StructurePrinter printer(structure, true, "output.py", nbIterAutoSubs, coords);
     printer.exportStruct();
     std::cout << "Structure exported to file output.py" << std::endl;
     return 0;

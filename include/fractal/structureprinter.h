@@ -17,7 +17,7 @@ class Structure;
 
 class StructurePrinter {
 public:
-    explicit StructurePrinter(frac::Structure const& structure, bool planarControlPoints, std::string filename, std::vector<std::vector<Point2D>> const& coords = {});
+    explicit StructurePrinter(frac::Structure const& structure, bool planarControlPoints, std::string filename, unsigned int nbIterAutoSubs, std::vector<std::vector<Point2D>> const& coords = {});
     void exportStruct();
 private:
     void print_header();
@@ -48,6 +48,7 @@ private:
     std::string const m_filename;
     std::vector<std::vector<Point2D>> const& m_coords;
     frac::FilePrinter m_filePrinter;
+    const unsigned int m_nbIterAutoSubs;
 };
 }
 #endif //AUTOFRAC_STRUCTUREPRINTER_H

@@ -23,11 +23,13 @@ AutoFracCli [-a] [-c] filename
   filename   path to the input file
   -a         automatic position of intern control points
   -c         use cubic bezier curves, default is quadratic
+  -i N       nb iterations of subdivision points, default is 0
 ```
 
 The input file defines parameters of a fractal topology.  
 The parameter `-a` allows automatic position of intern control points of Bézier curves depending on the one from the curve's extremities.  
-The parameter `-c` makes the Bézier curves cubic, otherwise they are quadratic.
+The parameter `-c` makes the Bézier curves cubic, otherwise they are quadratic.  
+The parameter `-i` indicates the number of iterations to place automatically the subdivision points.
 
 You can use the `example/simple.txt` file with the `-a` option. The file contains the coordinates for all cell's corners, not for intern control points.
 
@@ -78,4 +80,4 @@ A constraint definition has the form `F1.E1 / F2.E2`, where:
 - `E2` is the index of the edge of the second face. 
 
 A position has the form `x y`, where `x` and `y` can be float numbers.  
-They are in a specific order. Face by face, it starts by the position of the vertices of the edge 0. Then follows the positions for the vertices in counter clockwise order.
+They are in a specific order. Face by face, it starts by the position of the vertices of the edge 0. Then follows the positions for the vertices in counterclockwise order.

@@ -5,8 +5,8 @@
 #include "utils/utils.h"
 #include "utils/point2d.h"
 
-frac::StructurePrinter::StructurePrinter(frac::Structure const& structure, bool planarControlPoints, std::string filename, std::vector<std::vector<Point2D>> const& coords) :
-        m_structure(structure), m_planarControlPoints(planarControlPoints), m_filename(std::move(filename)), m_coords(coords) {}
+frac::StructurePrinter::StructurePrinter(frac::Structure const& structure, bool planarControlPoints, std::string filename, unsigned int nbIterAutoSubs, std::vector<std::vector<Point2D>> const& coords) :
+        m_structure(structure), m_planarControlPoints(planarControlPoints), m_filename(std::move(filename)), m_coords(coords), m_nbIterAutoSubs(nbIterAutoSubs) {}
 
 void frac::StructurePrinter::exportStruct() {
     this->print_header();
@@ -444,7 +444,7 @@ void frac::StructurePrinter::print_plan_coords_control_points() {
 
 void frac::StructurePrinter::print_footer() {
     m_filePrinter.append_nl("    auto = Auto(init)");
-    m_filePrinter.append_nl("    auto.autoSubs(300)");
+    m_filePrinter.append_nl("    auto.autoSubs(" + std::to_string(m_nbIterAutoSubs) + ")");
     m_filePrinter.append_nl("    return init");
     m_filePrinter.append_nl("");
     m_filePrinter.append_nl("");
