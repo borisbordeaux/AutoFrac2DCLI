@@ -141,11 +141,7 @@ std::size_t frac::Face::computeOffset(frac::Face const& face, frac::Face const& 
         if (face.m_data == shifted) {
             return i;
         }
-        std::vector<frac::Edge> new_shifted { frac::utils::shiftVector(shifted) };
-        shifted.clear();
-        for (Edge const& e: new_shifted) {
-            shifted.emplace_back(e);
-        }
+        shifted = frac::utils::shiftVector(shifted);
     }
     return 0; //
 }

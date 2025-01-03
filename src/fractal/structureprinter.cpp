@@ -1,3 +1,6 @@
+#include <filesystem>
+#include <fstream>
+#include <iostream>
 #include "fractal/structureprinter.h"
 
 #include "fractal/face.h"
@@ -29,7 +32,7 @@ void frac::StructurePrinter::exportStruct() {
     auto cells = m_structure.allFaces();
     for (auto const& c: cells.data()) {
         m_filePrinter.append_nl("    # " + c.toString());
-        m_filePrinter.append_nl("    " + c.name() + " = Etat('" + c.name() + "', 0)");
+        m_filePrinter.append_nl("    " + c.name() + " = Etat('" + c.toString() + "', 0)");
     }
 
     m_filePrinter.append_nl("    ##############################");
@@ -88,6 +91,8 @@ void frac::StructurePrinter::exportStruct() {
     m_filePrinter.append_nl("    # constraints on init cells");
     m_filePrinter.append(m_structure.strAdjacencies());
 
+    m_filePrinter.append_nl("    ");
+    m_filePrinter.append_nl("    ##############################");
     m_filePrinter.append_nl("    # control points");
     if (m_planarControlPoints) {
         if (m_coords.empty()) {
@@ -96,6 +101,50 @@ void frac::StructurePrinter::exportStruct() {
             this->print_plan_coords_control_points();
         }
     }
+
+    m_filePrinter.append_nl("    ##############################");
+    m_filePrinter.append_nl("    # load matrices");
+    std::vector<std::string> cellsToSave;
+    for (auto const& c: cells) {
+        std::string folderpath = c.toString();
+        folderpath = frac::utils::replaceAll(folderpath, "/", "--");
+        folderpath = "library/" + frac::utils::replaceAll(folderpath, " ", "");
+        if (std::filesystem::is_directory(folderpath)) {
+            std::size_t nbSubs = c.subdivisions().size();
+            for (std::size_t i = 0; i < nbSubs; i++) {
+                m_filePrinter.append("    " + c.name() + ".initMat[Sub_('" + std::to_string(i) + "')] = FMat(");
+                std::string filepath = folderpath + "/" + std::to_string(i);
+                std::ifstream ifs(filepath);
+                std::string content((std::istreambuf_iterator<char>(ifs)),
+                                    (std::istreambuf_iterator<char>()));
+                ifs.close();
+                m_filePrinter.append(content);
+                m_filePrinter.append_nl(").setTyp('Var')");
+            }
+        } else {
+            cellsToSave.push_back(c.name());
+        }
+    }
+
+    m_filePrinter.append_nl("    ");
+    m_filePrinter.append_nl("    ##############################");
+    m_filePrinter.append_nl("    # auto subdivision points and save matrices");
+    m_filePrinter.append("    allCellsToSave = [");
+    bool first = true;
+    for (auto const& c: cellsToSave) {
+        m_filePrinter.append((first ? "" : ", ") + c);
+        first = false;
+    }
+    m_filePrinter.append_nl("]");
+
+    m_filePrinter.append_nl("    auto = Auto(init)");
+    m_filePrinter.append_nl("    auto.initDic()");
+    m_filePrinter.append_nl("    for etat in auto.figMax:");
+    m_filePrinter.append("        auto.autoSubBar(etat, " + std::to_string(m_nbIterAutoSubs) + ", [''");
+    for (auto const& c: cellsToSave) {
+        m_filePrinter.append(", " + c + ".name");
+    }
+    m_filePrinter.append_nl("])");
 
     this->print_footer();
     m_filePrinter.printToFile(m_filename);
@@ -443,8 +492,16 @@ void frac::StructurePrinter::print_plan_coords_control_points() {
 }
 
 void frac::StructurePrinter::print_footer() {
-    m_filePrinter.append_nl("    auto = Auto(init)");
-    m_filePrinter.append_nl("    auto.autoSubs(" + std::to_string(m_nbIterAutoSubs) + ")");
+    m_filePrinter.append_nl("    # to save matrices of cells");
+    m_filePrinter.append_nl("    for cell in allCellsToSave:");
+    m_filePrinter.append_nl("        folderpath = cell.name.replace('/', '--')");
+    m_filePrinter.append_nl("        folderpath = os.path.dirname(os.path.abspath(__file__)) + '/library/' + folderpath.replace(' ', '') + '/'");
+    m_filePrinter.append_nl("        os.mkdir(folderpath)");
+    m_filePrinter.append_nl("        for i in range(len(cell.subs)-1):");
+    m_filePrinter.append_nl("            filepath = folderpath + str(i)");
+    m_filePrinter.append_nl("            with open(filepath, 'w') as f:");
+    m_filePrinter.append_nl("                f.write(str(cell.fm_[Sub(str(i))].tab))");
+    m_filePrinter.append_nl("");
     m_filePrinter.append_nl("    return init");
     m_filePrinter.append_nl("");
     m_filePrinter.append_nl("");
@@ -455,7 +512,6 @@ void frac::StructurePrinter::print_footer() {
     m_filePrinter.append_nl("    model_init.check()");
     m_filePrinter.append_nl("    print('solve()')");
     m_filePrinter.append_nl("    model_init.solve()");
-    m_filePrinter.append_nl("    model_init.display()");
     m_filePrinter.append_nl("    print('End')");
 }
 

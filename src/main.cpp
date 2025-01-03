@@ -33,7 +33,7 @@ std::string getCmdOption(int argc, char* argv[], std::string const& option) {
 }
 
 void printHelp() {
-    std::cout << "usage: AutoFracCli [-a] [-c] [-i N] filename" << std::endl;
+    std::cout << "usage: ./AutoFrac2DCli [-a] [-c] [-i N] filename" << std::endl;
     std::cout << "\tfilename\t\t path to the input file" << std::endl;
     std::cout << "\t-a      \t\t automatic position of intern control points" << std::endl;
     std::cout << "\t-c      \t\t use cubic bezier curves, default is quadratic" << std::endl;

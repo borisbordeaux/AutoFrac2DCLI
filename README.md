@@ -18,8 +18,21 @@ make -j {NB_CORES}
 
 ## How to use
 
+### Library
+
+At first, create a new directory called `library` along with the executable.  
 ```bash
-AutoFracCli [-a] [-c] [-i N] filename
+mkdir library
+```
+If the library folder contains saved matrices of some fractal cells, it will load it into the output file.  
+When executing the output file, it will save the matrices that were not available at the moment of creation of the file.
+If matrices were already saved before the execution of the file, they will be overwritten.
+To avoid this behavior, recreate the output file.
+
+### Program
+
+```bash
+./AutoFrac2DCli [-a] [-c] [-i N] filename
   filename   path to the input file
   -a         automatic position of intern control points
   -c         use cubic bezier curves, default is quadratic
@@ -27,7 +40,7 @@ AutoFracCli [-a] [-c] [-i N] filename
 ```
 
 The input file defines parameters of a fractal topology.  
-The parameter `-a` allows automatic position of intern control points of Bézier curves depending on the one from the curve's extremities.  
+The parameter `-a` allows automatic position of intern control points of Bézier curves depending on the extremities positions.  
 The parameter `-c` makes the Bézier curves cubic, otherwise they are quadratic.  
 The parameter `-i` indicates the number of iterations to place automatically the subdivision points.
 
