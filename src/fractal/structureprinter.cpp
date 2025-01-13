@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <utility>
 #include "fractal/structureprinter.h"
 
 #include "fractal/face.h"
@@ -8,8 +9,8 @@
 #include "utils/utils.h"
 #include "utils/point2d.h"
 
-frac::StructurePrinter::StructurePrinter(frac::Structure const& structure, bool planarControlPoints, std::string filename, unsigned int nbIterAutoSubs, std::vector<std::vector<Point2D>> const& coords) :
-        m_structure(structure), m_planarControlPoints(planarControlPoints), m_filename(std::move(filename)), m_coords(coords), m_nbIterAutoSubs(nbIterAutoSubs) {}
+frac::StructurePrinter::StructurePrinter(frac::Structure const& structure, bool planarControlPoints, std::string filename, unsigned int nbIterAutoSubs, std::string libPath, std::vector<std::vector<Point2D>> const& coords) :
+        m_structure(structure), m_planarControlPoints(planarControlPoints), m_filename(std::move(filename)), m_coords(coords), m_nbIterAutoSubs(nbIterAutoSubs), m_libPath(std::move(libPath)) {}
 
 void frac::StructurePrinter::exportStruct() {
     this->print_header();
@@ -108,7 +109,7 @@ void frac::StructurePrinter::exportStruct() {
     for (auto const& c: cells) {
         std::string folderpath = c.toString();
         folderpath = frac::utils::replaceAll(folderpath, "/", "--");
-        folderpath = "library/" + frac::utils::replaceAll(folderpath, " ", "");
+        folderpath = m_libPath + frac::utils::replaceAll(folderpath, " ", "");
         if (std::filesystem::is_directory(folderpath)) {
             std::size_t nbSubs = c.subdivisions().size();
             for (std::size_t i = 0; i < nbSubs; i++) {
@@ -496,7 +497,7 @@ void frac::StructurePrinter::print_footer() {
     m_filePrinter.append_nl("    for cell in allCellsToSave:");
     m_filePrinter.append_nl("        folderpath = cell.name.replace('/', '--')");
     m_filePrinter.append_nl("        folderpath = os.path.dirname(os.path.abspath(__file__)) + '/library/' + folderpath.replace(' ', '') + '/'");
-    m_filePrinter.append_nl("        os.mkdir(folderpath)");
+    m_filePrinter.append_nl("        os.makedirs(folderpath, exist_ok=True)");
     m_filePrinter.append_nl("        for i in range(len(cell.subs)-1):");
     m_filePrinter.append_nl("            filepath = folderpath + str(i)");
     m_filePrinter.append_nl("            with open(filepath, 'w') as f:");

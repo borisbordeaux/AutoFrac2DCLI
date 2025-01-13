@@ -23,7 +23,7 @@ bool optionExists(int argc, char* argv[], std::string const& option) {
 }
 
 std::string getCmdOption(int argc, char* argv[], std::string const& option) {
-    std::string res = "0";
+    std::string res;
     for (int i = 1; i < argc - 1; i++) {
         if (argv[i] == option) {
             res = argv[i + 1];
@@ -33,11 +33,12 @@ std::string getCmdOption(int argc, char* argv[], std::string const& option) {
 }
 
 void printHelp() {
-    std::cout << "usage: ./AutoFrac2DCli [-a] [-c] [-i N] filename" << std::endl;
+    std::cout << "usage: ./AutoFrac2DCli [-a] [-c] [-i N] [-l path] filename" << std::endl;
     std::cout << "\tfilename\t\t path to the input file" << std::endl;
     std::cout << "\t-a      \t\t automatic position of intern control points" << std::endl;
     std::cout << "\t-c      \t\t use cubic bezier curves, default is quadratic" << std::endl;
     std::cout << "\t-i N    \t\t nb iterations of subdivision points, default is 0" << std::endl;
+    std::cout << "\t-l path \t\t path to the lib folder with an end '/', default is \"library/\"" << std::endl;
 }
 
 int main(int argc, char* argv[]) {
@@ -45,28 +46,30 @@ int main(int argc, char* argv[]) {
     bool autoCoord = optionExists(argc, argv, "-a");
     bool cubicBezier = optionExists(argc, argv, "-c");
     bool iterAutoSubs = optionExists(argc, argv, "-i");
+    bool libPath = optionExists(argc, argv, "-l");
     unsigned int nbIterAutoSubs = iterAutoSubs ? std::stoul(getCmdOption(argc, argv, "-i")) : 0;
+    std::string libraryPath = libPath ? getCmdOption(argc, argv, "-l") : "library/";
 
-    int expectedParams = 1 + (autoCoord ? 1 : 0) + (cubicBezier ? 1 : 0) + (iterAutoSubs ? 2 : 0) + 1;
+    int expectedParams = 1 + (autoCoord ? 1 : 0) + (cubicBezier ? 1 : 0) + (iterAutoSubs ? 2 : 0) + (libPath ? 2 : 0) + 1;
 
-    if(expectedParams != argc){
+    if (expectedParams != argc) {
         printHelp();
         return 1;
     }
 
     if (cubicBezier) {
-        std::cout << "Cubic bezier curves - ";
+        std::cout << "Cubic Bezier, ";
     } else {
-        std::cout << "Quadratic bezier curves - ";
+        std::cout << "Quadratic Bezier, ";
     }
 
     if (autoCoord) {
-        std::cout << "Intern control points auto - ";
+        std::cout << "Intern points auto, ";
     } else {
-        std::cout << "Intern control points not auto - ";
+        std::cout << "Intern points not auto, ";
     }
 
-    std::cout << nbIterAutoSubs << " iterations of subdivision points - reading file " << filename << std::endl;
+    std::cout << nbIterAutoSubs << " iterations of spring–mass system, library path " << libraryPath << ", file " << filename << std::endl;
 
     std::vector<frac::Face> faces;
     std::vector<frac::Adjacency> constraints;
@@ -185,7 +188,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    frac::StructurePrinter printer(structure, true, "output.py", nbIterAutoSubs, coords);
+    frac::StructurePrinter printer(structure, true, "output.py", nbIterAutoSubs, libraryPath, coords);
     printer.exportStruct();
     std::cout << "Structure exported to file output.py" << std::endl;
     return 0;

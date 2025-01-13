@@ -18,33 +18,31 @@ make -j {NB_CORES}
 
 ## How to use
 
-### Library
-
-At first, create a new directory called `library` along with the executable.  
-```bash
-mkdir library
-```
-If the library folder contains saved matrices of some fractal cells, it will load it into the output file.  
-When executing the output file, it will save the matrices that were not available at the moment of creation of the file.
-If matrices were already saved before the execution of the file, they will be overwritten.
-To avoid this behavior, recreate the output file.
-
 ### Program
 
 ```bash
-./AutoFrac2DCli [-a] [-c] [-i N] filename
+./AutoFrac2DCli [-a] [-c] [-i N] [-l path] filename
   filename   path to the input file
   -a         automatic position of intern control points
   -c         use cubic bezier curves, default is quadratic
   -i N       nb iterations of subdivision points, default is 0
+  -l path    path to the lib folder with an ending '/', default is "library/"
 ```
 
 The input file defines parameters of a fractal topology.  
 The parameter `-a` allows automatic position of intern control points of Bézier curves depending on the extremities positions.  
 The parameter `-c` makes the Bézier curves cubic, otherwise they are quadratic.  
-The parameter `-i` indicates the number of iterations to place automatically the subdivision points.
+The parameter `-i` indicates the number of iterations to place automatically the subdivision points.  
+The parameter `-l` indicates the location of the library folder.
 
 You can use the `example/simple.txt` file with the `-a` option. The file contains the coordinates for all cell's corners, not for intern control points.
+
+### Library
+
+If the library folder contains saved matrices of some fractal cells, it will load it into the output file.  
+When executing the output file, it saves the matrices that were not available at the moment of creation of the file into a folder named `library` in the same directory of the output file.
+If matrices were already saved before the execution of the file, they will be overwritten.
+To avoid this behavior, recreate the output file.
 
 ## The input file
 
