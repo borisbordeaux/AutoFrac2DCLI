@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
         std::cout << f.name() << std::endl;
     }
 
-    frac::Structure structure(faces, cubicBezier);
+    frac::Structure structure(faces, cubicBezier ? frac::BezierType::Cubic_Bezier : frac::BezierType::Quadratic_Bezier, frac::CantorType::Classic_Cantor);
     for (frac::Adjacency const& adj: constraints) {
         structure.addAdjacency(adj);
     }
@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
             bool firstInternCP = true;
             for (int j = 0; j < static_cast<int>(coords[i].size()); j++) {
                 if (structure.isInternControlPoint(j, i)) {
-                    if (structure.isBezierCubic()) {
+                    if (structure.bezierType() == frac::BezierType::Cubic_Bezier) {
                         if (firstInternCP) {
                             frac::Point2D P0 = coords[i][j - 1];
                             frac::Point2D P1 = coords[i][(j + 2) % nbCtrlPts];
@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
             coords[i] = frac::utils::shiftVector(coords[i]);
             if (faces[i][j].edgeType() == frac::EdgeType::BEZIER) {
                 coords[i] = frac::utils::shiftVector(coords[i]);
-                if (structure.isBezierCubic()) {
+                if (structure.bezierType() == frac::BezierType::Cubic_Bezier) {
                     coords[i] = frac::utils::shiftVector(coords[i]);
                 }
             }

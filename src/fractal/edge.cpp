@@ -10,29 +10,29 @@ frac::Edge frac::Edge::fromStr(const std::string& name) {
     unsigned int nbSubs = std::stoul(splitEdgeName[1]);
     unsigned int delayEdge = std::stoul(splitEdgeName[2]);
 
-    return {type, nbSubs, delayEdge};
+    return { type, nbSubs, delayEdge };
 }
 
 void frac::Edge::decreaseDelay() {
     if (this->isDelay()) {
-        this->m_delay--;
+        m_delay--;
     }
 }
 
 frac::EdgeType frac::Edge::edgeType() const {
-    return this->m_edgeType;
+    return m_edgeType;
 }
 
 unsigned int frac::Edge::nbActualSubdivisions() const {
-    return this->isDelay() ? 1 : this->m_nbSubdivisions;
+    return this->isDelay() ? 1 : m_nbSubdivisions;
 }
 
 unsigned int frac::Edge::nbSubdivisions() const {
-    return this->m_nbSubdivisions;
+    return m_nbSubdivisions;
 }
 
 unsigned int frac::Edge::delay() const {
-    return this->m_delay;
+    return m_delay;
 }
 
 std::vector<frac::Edge> frac::Edge::subdivisions(Edge const& reqEdge) const {
@@ -58,7 +58,7 @@ std::vector<frac::Edge> frac::Edge::subdivisions(Edge const& reqEdge) const {
 }
 
 bool frac::Edge::isDelay() const {
-    return this->m_delay > 0;
+    return m_delay > 0;
 }
 
 namespace frac {
@@ -72,7 +72,7 @@ std::ostream& operator<<(std::ostream& os, frac::Edge const& edge) {
 }
 
 bool frac::Edge::operator==(Edge const& other) const {
-    return this->m_edgeType == other.m_edgeType && this->m_delay == other.m_delay && this->m_nbSubdivisions == other.m_nbSubdivisions;
+    return m_edgeType == other.m_edgeType && m_delay == other.m_delay && m_nbSubdivisions == other.m_nbSubdivisions;
 }
 
 bool frac::Edge::operator!=(Edge const& other) const {
@@ -100,13 +100,61 @@ std::string frac::Edge::name() const {
 }
 
 void frac::Edge::setEdgeType(frac::EdgeType edgeType) {
-    this->m_edgeType = edgeType;
+    m_edgeType = edgeType;
 }
 
 void frac::Edge::setNbSubdivisions(unsigned int nbSubdivisions) {
-    this->m_nbSubdivisions = nbSubdivisions;
+    m_nbSubdivisions = nbSubdivisions;
 }
 
 void frac::Edge::setDelay(unsigned int delay) {
-    this->m_delay = delay;
+    m_delay = delay;
+}
+
+std::size_t frac::Edge::nbControlPoints(frac::BezierType bezierType, frac::CantorType cantorType) const {
+    switch (this->edgeType()) {
+        case EdgeType::CANTOR:
+            switch (cantorType) {
+                case CantorType::Classic_Cantor:
+                    return 2;
+                case CantorType::Quadratic_Cantor:
+                    return 3;
+                case CantorType::Cubic_Cantor:
+                    return 4;
+            }
+            break;
+        case EdgeType::BEZIER:
+            switch (bezierType) {
+                case BezierType::Quadratic_Bezier:
+                    return 3;
+                case BezierType::Cubic_Bezier:
+                    return 4;
+            }
+    }
+    //to avoid warning, but may not be executed
+    return 0;
+}
+
+std::size_t frac::Edge::nbInternControlPoints(frac::BezierType bezierType, frac::CantorType cantorType) const {
+    switch (this->edgeType()) {
+        case EdgeType::CANTOR:
+            switch (cantorType) {
+                case CantorType::Classic_Cantor:
+                    return 0;
+                case CantorType::Quadratic_Cantor:
+                    return 1;
+                case CantorType::Cubic_Cantor:
+                    return 2;
+            }
+            break;
+        case EdgeType::BEZIER:
+            switch (bezierType) {
+                case BezierType::Quadratic_Bezier:
+                    return 1;
+                case BezierType::Cubic_Bezier:
+                    return 2;
+            }
+    }
+    //to avoid warning, but may not be executed
+    return 0;
 }

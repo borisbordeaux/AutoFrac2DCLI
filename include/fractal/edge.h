@@ -11,6 +11,17 @@ enum class EdgeType {
     CANTOR, BEZIER
 };
 
+enum class CantorType {
+    Classic_Cantor,
+    Quadratic_Cantor,
+    Cubic_Cantor
+};
+
+enum class BezierType {
+    Quadratic_Bezier,
+    Cubic_Bezier
+};
+
 class Edge {
 public:
     Edge(frac::Edge const& other) = default;
@@ -35,6 +46,9 @@ public:
     bool operator!=(frac::Edge const& other) const;
 
     [[nodiscard]] std::string toString() const;
+
+    std::size_t nbControlPoints(BezierType bezierType, CantorType cantorType) const;
+    std::size_t nbInternControlPoints(BezierType bezierType, CantorType cantorType) const;
 
 private:
     frac::EdgeType m_edgeType;

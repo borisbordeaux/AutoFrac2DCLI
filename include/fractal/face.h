@@ -6,16 +6,11 @@
 #include <vector>
 #include <unordered_map>
 
+#include "fractal/algorithms/algorithmsubdivision.h"
 #include "fractal/edge.h"
 #include "utils/set.h"
 
 namespace frac {
-
-enum class AlgorithmSubdivision {
-    LinksSurroundDelay,
-    LinksSurroundDelayAndBezier,
-    LinksOnCorners
-};
 
 class Face {
 public:
@@ -35,9 +30,9 @@ public:
     [[nodiscard]] frac::Edge gapEdge() const;
     [[nodiscard]] frac::Edge reqEdge() const;
     [[nodiscard]] unsigned int delay() const;
-    [[nodiscard]] AlgorithmSubdivision algo() const;
+    [[nodiscard]] frac::AlgorithmSubdivision algo() const;
 
-    std::optional<frac::Edge> edgeIfRequired(frac::Edge const& edge) const;
+    [[nodiscard]] std::optional<frac::Edge> edgeIfRequired(frac::Edge const& edge) const;
 
     void setAdjEdge(frac::Edge const& edge);
     void setGapEdge(frac::Edge const& edge);
@@ -46,7 +41,7 @@ public:
     void setFirstInterior(int index);
     void setAlgo(AlgorithmSubdivision algo);
     [[nodiscard]] std::vector<frac::Face> subdivisions() const;
-    [[nodiscard]] Set<frac::Face> allSubdivisions() const;
+    [[nodiscard]] frac::Set<frac::Face> allSubdivisions() const;
 
     frac::Edge const& operator[](std::size_t index) const;
     bool operator==(frac::Face const& other) const;
@@ -64,7 +59,7 @@ public:
     // key is name of the cell (since it is unique)
     static std::unordered_map<std::string, std::vector<frac::Face>> s_subdivisions;
 
-    std::size_t nbControlPoints(bool bezierCubic) const;
+    std::size_t nbControlPoints(BezierType bezierType, CantorType cantorType) const;
 
 private:
     std::vector<frac::Edge> m_data;
@@ -75,7 +70,7 @@ private:
     std::string m_name;
     std::size_t m_offset;
     int m_firstInterior;
-    AlgorithmSubdivision m_algo;
+    frac::AlgorithmSubdivision m_algo;
 
     static frac::Set<frac::Face> s_existingFaces;
 

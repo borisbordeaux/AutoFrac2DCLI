@@ -143,7 +143,7 @@ std::size_t frac::Face::computeOffset(frac::Face const& face, frac::Face const& 
         }
         shifted = frac::utils::shiftVector(shifted);
     }
-    return 0; //
+    return 0;
 }
 
 frac::Set<frac::Face> frac::Face::allSubdivisions() const {
@@ -236,10 +236,10 @@ std::optional<frac::Edge> frac::Face::edgeIfRequired(const frac::Edge& edge) con
     }
 }
 
-std::size_t frac::Face::nbControlPoints(bool bezierCubic) const {
+std::size_t frac::Face::nbControlPoints(BezierType bezierType, CantorType cantorType) const {
     std::size_t res = 0;
     for (Edge const& e: m_data) {
-        res += e.edgeType() == EdgeType::BEZIER ? (bezierCubic ? 4 : 3) : 2;
+        res += e.nbControlPoints(bezierType, cantorType);
         res--;
     }
     return res;
@@ -250,8 +250,8 @@ frac::Face frac::Face::fromStr(std::string const& name) {
     std::string sepEdges = " - ";
 
     std::vector<std::string> splitCellName = frac::utils::split(name, sepCellInfo);
-    std::string edgesNames = splitCellName[0];
-    std::string paramsNames = splitCellName[1];
+    std::string const& edgesNames = splitCellName[0];
+    std::string const& paramsNames = splitCellName[1];
     unsigned int delay = std::stoul(splitCellName[2]);
 
     std::vector<frac::Edge> edges;

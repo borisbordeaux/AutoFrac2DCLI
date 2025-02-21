@@ -28,7 +28,7 @@ struct Adjacency {
 
 class Structure {
 public:
-    explicit Structure(std::vector<frac::Face> const& faces, bool bezierCubic);
+    explicit Structure(std::vector<frac::Face> const& faces, frac::BezierType bezierType, frac::CantorType cantorType);
 
     void addAdjacency(Adjacency const& adj);
     std::string strAdjacencies() const;
@@ -47,13 +47,15 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const frac::Structure& structure);
     frac::Face const& operator[](std::size_t index) const;
 
-    bool isBezierCubic() const;
+    frac::BezierType bezierType() const;
+    frac::CantorType cantorType() const;
 
 private:
     std::vector<frac::Face> m_faces;
     std::string m_strAdjacency;
     std::vector<Adjacency> m_adjacencies;
-    bool m_bezierCubic;
+    frac::BezierType m_bezierType;
+    frac::CantorType m_cantorType;
 };
 
 } // frac

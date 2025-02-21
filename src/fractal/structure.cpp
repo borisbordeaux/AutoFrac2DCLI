@@ -2,7 +2,7 @@
 #include "utils/utils.h"
 #include <iostream>
 
-frac::Structure::Structure(std::vector<Face> const& faces, bool bezierCubic) : m_faces(faces), m_bezierCubic(bezierCubic) {}
+frac::Structure::Structure(std::vector<Face> const& faces, BezierType bezierType, CantorType cantorType) : m_faces(faces), m_bezierType(bezierType), m_cantorType(cantorType) {}
 
 void frac::Structure::addAdjacency(Adjacency const& adj) {
     if (m_faces[adj.Face1][adj.Edge1] == m_faces[adj.Face2][adj.Edge2]) {
@@ -41,7 +41,7 @@ frac::Set<frac::Face> frac::Structure::allFaces() const {
 }
 
 std::size_t frac::Structure::nbControlPointsOfFace(std::size_t indexFace) const {
-    return m_faces[indexFace].nbControlPoints(m_bezierCubic);
+    return m_faces[indexFace].nbControlPoints(m_bezierType, m_cantorType);
 }
 
 namespace frac {
@@ -59,8 +59,8 @@ frac::Adjacency frac::Adjacency::fromStr(std::string const& strConstraint) {
     std::string sepFaceInfo = ".";
 
     std::vector<std::string> splitFaces = frac::utils::split(strConstraint, sepFaces);
-    std::string face1Info = splitFaces[0];
-    std::string face2Info = splitFaces[1];
+    std::string const& face1Info = splitFaces[0];
+    std::string const& face2Info = splitFaces[1];
 
     std::vector<std::string> splitFace1 = frac::utils::split(face1Info, sepFaceInfo);
     std::vector<std::string> splitFace2 = frac::utils::split(face2Info, sepFaceInfo);
@@ -92,29 +92,20 @@ std::vector<std::size_t> frac::Structure::controlPointIndices(std::size_t indexE
     std::vector<std::size_t> res = {};
     std::size_t current = 0;
     for (std::size_t i = 0; i < indexEdge; i++) {
-        current += m_faces[indexFace][i].edgeType() == EdgeType::BEZIER ? (m_bezierCubic ? 3 : 2) : 1;
+        //add to current the number of control points on the edge minus one
+        current += m_faces[indexFace][i].nbControlPoints(m_bezierType, m_cantorType) - 1;
     }
-    res.emplace_back(current);
-    res.emplace_back((current + 1) % this->nbControlPointsOfFace(indexFace));
+    res.emplace_back(current); //first control point index
 
-    if (m_faces[indexFace][indexEdge].edgeType() == EdgeType::BEZIER) {
-        res.emplace_back((current + 2) % this->nbControlPointsOfFace(indexFace));
-        if (m_bezierCubic) {
-            res.emplace_back((current + 3) % this->nbControlPointsOfFace(indexFace));
-        }
+    std::size_t nbInternCtrlPts = m_faces[indexFace][indexEdge].nbInternControlPoints(m_bezierType, m_cantorType);
+    for (std::size_t i = 1; i <= nbInternCtrlPts; i++) {
+        res.emplace_back((current + i) % this->nbControlPointsOfFace(indexFace)); //intern control points indices
     }
+
+    res.emplace_back((current + nbInternCtrlPts + 1) % this->nbControlPointsOfFace(indexFace)); //last control point index
 
     if (reverse) {
-        //reverse extremities
-        std::size_t temp = res[0];
-        res[0] = res[res.size() - 1];
-        res[res.size() - 1] = temp;
-        if (m_bezierCubic && m_faces[indexFace][indexEdge].edgeType() == EdgeType::BEZIER) {
-            //reverse the 2 points in the middle
-            temp = res[1];
-            res[1] = res[2];
-            res[2] = temp;
-        }
+        std::reverse(res.begin(), res.end());
     }
 
     return res;
@@ -124,7 +115,7 @@ bool frac::Structure::isInternControlPoint(std::size_t indexControlPoint, std::s
     bool res = indexControlPoint != 0;
     std::size_t current = 0;
     for (std::size_t i = 0; i < m_faces[indexFace].constData().size(); i++) {
-        current += m_faces[indexFace][i].edgeType() == EdgeType::BEZIER ? (m_bezierCubic ? 3 : 2) : 1;
+        current += m_faces[indexFace][i].nbControlPoints(m_bezierType, m_cantorType) - 1;
         if (current == indexControlPoint) {
             res = false;
         }
@@ -133,30 +124,14 @@ bool frac::Structure::isInternControlPoint(std::size_t indexControlPoint, std::s
 }
 
 bool frac::Structure::isControlPointBelongEdge(std::size_t indexControlPoint, std::size_t indexFace, std::size_t indexEdge) const {
-    bool res = false;
-    std::size_t current = 0;
-    for (std::size_t i = 0; i < m_faces[indexFace].constData().size(); i++) {
-        if (i == indexEdge) {
-            if (current == indexControlPoint || current + 1 == indexControlPoint) {
-                res = true;
-            }
-            if (m_faces[indexFace][i].edgeType() == EdgeType::BEZIER) {
-                if (m_bezierCubic) {
-                    if (current + 2 == indexControlPoint || current + 3 == indexControlPoint) {
-                        res = true;
-                    }
-                } else {
-                    if (current + 2 == indexControlPoint) {
-                        res = true;
-                    }
-                }
-            }
-        }
-        current += m_faces[indexFace][i].edgeType() == EdgeType::BEZIER ? (m_bezierCubic ? 3 : 2) : 1;
-    }
-    return res;
+    std::vector<std::size_t> indices = this->controlPointIndices(indexEdge, indexFace);
+    return std::find(indices.begin(), indices.end(), indexControlPoint) != indices.end();
 }
 
-bool frac::Structure::isBezierCubic() const {
-    return m_bezierCubic;
+frac::BezierType frac::Structure::bezierType() const {
+    return m_bezierType;
+}
+
+frac::CantorType frac::Structure::cantorType() const {
+    return m_cantorType;
 }
